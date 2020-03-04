@@ -15,7 +15,7 @@ WORKDIR $GOPATH/src/github.com/bysidecar/untraceable/cmd
 # Enable Go modules
 ENV GO111MODULE=on
 # Build the binary
-RUN go build -mod=vendor -o /go/bin/livelead
+RUN go build -mod=vendor -o /go/bin/untraceable
 
 # Final image
 FROM alpine
