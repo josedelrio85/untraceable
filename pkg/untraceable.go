@@ -18,7 +18,7 @@ func (h *Handler) GetTraced() error {
 	sel := []Untraceable{}
 	date := time.Now().Add(time.Duration(-720) * time.Hour) // -30 days
 
-	err := db.Instance().Debug().Where("sms_date >= ?", date.Format("2006-01-02")).Find(&sel).Error
+	err := db.Instance().Debug().Where("date(sms_date) >= ?", date.Format("2006-01-02")).Find(&sel).Error
 	if err != nil && !gorm.IsRecordNotFoundError(err) {
 		return err
 	}
@@ -30,12 +30,13 @@ func (h *Handler) GetTraced() error {
 func (h *Handler) GetUntraceables() error {
 	leontel := []Leontel{}
 
-	date := time.Now()
+	duration := -24
 	if time.Now().Weekday() == time.Monday {
-		date = time.Now().Add(time.Duration(-72) * time.Hour)
+		duration = -72
 	}
+	date := time.Now().Add(time.Duration(duration) * time.Hour)
 
-	traced := []int64{}
+	traced := []int64{1}
 	for _, l := range h.Leads {
 		traced = append(traced, l.LeaID)
 	}
@@ -49,9 +50,8 @@ func (h *Handler) GetUntraceables() error {
 		Where("crmti.sub_subcategories.sub_id in (?)", []int{575, 562}).
 		Where("crmti.lea_leads.TELEFONO like ? or crmti.lea_leads.TELEFONO like ?", "6%", "7%").
 		Where("crmti.lea_leads.lea_id not in (?)", traced).
-		Where("crmti.act_activity.act_ts >= ?", date.Format("2006-01-02")).
+		Where("date(crmti.act_activity.act_ts) >= ?", date.Format("2006-01-02")).
 		Order("lea_id desc").
-		Limit(10).
 		Find(&leontel).
 		Error
 
@@ -95,13 +95,13 @@ func (h *Handler) GetUntraceables() error {
 		}
 	}
 
-	log.Printf("candidate %s: %v", candR.Desc, candR.Leads)
+	log.Printf("candidate %s: %d", candR.Desc, len(candR.Leads))
 	h.Candidates = append(h.Candidates, candR)
 
-	log.Printf("candidate %s: %v", candK.Desc, candK.Leads)
+	log.Printf("candidate %s: %d", candK.Desc, len(candK.Leads))
 	h.Candidates = append(h.Candidates, candK)
 
-	log.Printf("candidate %s: %v", candT.Desc, candT.Leads)
+	log.Printf("candidate %s: %d", candT.Desc, len(candT.Leads))
 	h.Candidates = append(h.Candidates, candT)
 
 	return nil
@@ -125,7 +125,11 @@ func MapToLLeida(candidates Candidates) Destination {
 	for _, l := range candidates.Leads {
 		numbers = append(numbers, *l.Phone)
 	}
-	dest.Number = numbers
+	log.Println(numbers)
+	// dest.Number = numbers
+	// TODO DEV => REMOVE!
+	// dest.Number = []string{"665932355", "685243280", "606677113"}
+	dest.Number = []string{"665932355"}
 
 	log.Printf("numbers: %s", dest.Number)
 	return dest
@@ -140,13 +144,14 @@ func (h *Handler) Fire() {
 			lleida.Sms.Source = cand.Desc
 			lleida.Sms.Text = lleida.Sms.Text + " " + cand.DDI
 
-			resp, err := lleida.Send()
-			if err != nil {
-				h.pushError(err)
-			}
-			// resp := LLeidaResp{
-			// 	Status: "Success",
+			// resp, err := lleida.Send()
+			// if err != nil {
+			// 	h.pushError(err)
 			// }
+			// TODO DEV => REMOVE!
+			resp := LLeidaResp{
+				Status: "Success",
+			}
 
 			if resp.Status == "Success" {
 				// store candidates
