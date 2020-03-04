@@ -44,7 +44,7 @@ func main() {
 	defer database.Close()
 
 	if err := database.AutoMigrate(); err != nil {
-		msg := "error  creating the table"
+		msg := "error creating the table"
 		e := untraceable.ErrorLogger{
 			Msg:    msg,
 			Status: http.StatusInternalServerError,
@@ -91,13 +91,13 @@ func main() {
 		log.Fatalf("error retrieving untraceable leads. err: %s", err)
 	}
 
-	// handler.Fire()
+	handler.Fire()
 
 	//test send
-	handler.LLeidanet.Sms.Source = "Test"
-	handler.LLeidanet.Sms.Destination.Number = []string{"665932355"}
-	resp, err := handler.LLeidanet.Send()
-	log.Println(resp)
+	// handler.LLeidanet.Sms.Source = "Test"
+	// handler.LLeidanet.Sms.Destination.Number = []string{"665932355"}
+	// resp, err := handler.LLeidanet.Send()
+	// log.Println(resp)
 
 	if len(handler.Errors) > 0 {
 		for _, err := range handler.Errors {
