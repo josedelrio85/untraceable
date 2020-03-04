@@ -157,11 +157,9 @@ func (h *Handler) Fire() {
 				// store candidates
 				log.Printf("SMS send [fake] %s success! => storing data", cand.Desc)
 
-				for _, cand := range h.Candidates {
-					for _, lead := range cand.Leads {
-						lead.SmsDate = time.Now()
-						h.Storer.Insert(&lead)
-					}
+				for _, lead := range cand.Leads {
+					lead.SmsDate = time.Now()
+					h.Storer.Insert(&lead)
 				}
 			}
 		}
