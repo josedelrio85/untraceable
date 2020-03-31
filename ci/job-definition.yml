@@ -26,4 +26,18 @@ spec:
             secretKeyRef:
               name: leads-database
               key: pass
+        - name: LLEIDANET_ENDPOINT
+          value: https://api.lleida.net/sms/v2/
+        - name: LLEIDANET_USER
+          valueFrom:
+            secretKeyRef:
+              name: lleidanet
+              key: user
+        - name: LLEIDANET_PASS
+          valueFrom:
+            secretKeyRef:
+              name: lleidanet
+              key: pass
+        - name: LLEIDANET_ALARM_PHONE
+          value: 635685258
       restartPolicy: Never
