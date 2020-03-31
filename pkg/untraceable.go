@@ -46,7 +46,7 @@ func (h *Handler) GetUntraceables() error {
 		Select("lea_id, TELEFONO, lea_source").
 		Joins("INNER JOIN crmti.act_activity ON crmti.act_activity.act_id = crmti.lea_leads.lea_id").
 		Joins("INNER JOIN crmti.sub_subcategories ON crmti.sub_subcategories.sub_id = crmti.act_activity.act_last_cat").
-		Where("crmti.lea_leads.lea_source IN (?) ", []int{6, 20, 63, 64, 73, 74, 75, 77, 81}).
+		Where("crmti.lea_leads.lea_source IN (?) ", []int{73, 74, 75}).
 		Where("crmti.sub_subcategories.sub_id in (?)", []int{575, 562}).
 		Where("crmti.lea_leads.TELEFONO like ? or crmti.lea_leads.TELEFONO like ?", "6%", "7%").
 		Where("crmti.lea_leads.lea_id not in (?)", traced).
@@ -81,7 +81,7 @@ func (h *Handler) GetUntraceables() error {
 		un := l.MapToUntraceable()
 
 		switch un.SouID {
-		case 6, 20, 63, 64, 73, 77, 81:
+		case 73:
 			un.DDI = candR.DDI
 			candR.Leads = append(candR.Leads, un)
 		case 75:
