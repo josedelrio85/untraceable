@@ -4,9 +4,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"encoding/xml"
+	"errors"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -23,6 +26,7 @@ func (h *Handler) GetTraced() error {
 		return err
 	}
 	h.Leads = sel
+
 	return nil
 }
 
@@ -107,7 +111,7 @@ func (h *Handler) GetUntraceables() error {
 	return nil
 }
 
-// MapToUntraceable blablba
+// MapToUntraceable maps leontel leads to untraceable model
 func (l *Leontel) MapToUntraceable() Untraceable {
 	un := Untraceable{}
 	un.LeaID = l.LeaID
@@ -125,12 +129,7 @@ func MapToLLeida(candidates Candidates) Destination {
 	for _, l := range candidates.Leads {
 		numbers = append(numbers, *l.Phone)
 	}
-	log.Println(numbers)
-	// dest.Number = numbers
-	// TODO DEV => REMOVE!
-	// dest.Number = []string{"665932355", "685243280", "606677113"}
-	dest.Number = []string{"665932355"}
-
+	dest.Number = numbers
 	log.Printf("numbers: %s", dest.Number)
 	return dest
 }
@@ -138,17 +137,19 @@ func MapToLLeida(candidates Candidates) Destination {
 // Fire starts sms sending process for each campaign
 func (h *Handler) Fire() {
 	for _, cand := range h.Candidates {
-		if len(cand.Leads) > 0 {
-			lleida := h.LLeidanet
+		lleida := h.LLeidanet
+
+		if len(cand.Leads) > 0 && len(cand.Leads) <= 150 {
 			lleida.Sms.Destination = MapToLLeida(cand)
 			lleida.Sms.Source = cand.Desc
 			lleida.Sms.Text = lleida.Sms.Text + " " + cand.DDI
 
+			// TODO uncomment
 			// resp, err := lleida.Send()
 			// if err != nil {
 			// 	h.pushError(err)
 			// }
-			// TODO DEV => REMOVE!
+			// TODO remove
 			resp := LLeidaResp{
 				Status: "Success",
 			}
@@ -162,6 +163,28 @@ func (h *Handler) Fire() {
 					h.Storer.Insert(&lead)
 				}
 			}
+		} else if len(cand.Leads) > 150 {
+			alarmphone, ok := os.LookupEnv("LLEIDANET_ALARM_PHONE")
+			if !ok {
+				err := errors.New("unable to load LleidaNet alarm phone")
+				h.pushError(err)
+			}
+
+			lleida.Sms.Destination = Destination{
+				Number: []string{alarmphone},
+			}
+			lleida.Sms.Source = "Bysidecar"
+			msg := fmt.Sprintf("Untraceable -> %s checkMaxLimit alarm %d", cand.Desc, len(cand.Leads))
+			lleida.Sms.Text = msg
+
+			// push campaign max limit reached error
+			h.pushError(errors.New(msg))
+
+			// Send an alarm sms to Sergio
+			_, err := lleida.Send()
+			if err != nil {
+				h.pushError(err)
+			}
 		}
 	}
 }
@@ -170,17 +193,15 @@ func (h *Handler) Fire() {
 func (ll *LLeidanet) Send() (LLeidaResp, error) {
 	log.Println("sending sms")
 
-	// TODO set endpoint as env var
-	endpoint := "https://api.lleida.net/sms/v2/"
-	// endpoint, ok := os.LookupEnv("LEAD_LEONTEL_ENDPOINT")
-	// if !ok {
-	// 	err := errors.New("unable to load LleidaNet URL endpoint")
-	// 	return err
-	// }
 	ko := LLeidaResp{
 		Request: "sms",
 		Code:    500,
 		Status:  "Error",
+	}
+	endpoint, ok := os.LookupEnv("LLEIDANET_ENDPOINT")
+	if !ok {
+		err := errors.New("unable to load LleidaNet URL endpoint")
+		return ko, err
 	}
 
 	bytevalues, err := json.Marshal(ll)
