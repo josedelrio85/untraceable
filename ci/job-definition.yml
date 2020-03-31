@@ -39,5 +39,5 @@ spec:
               name: lleidanet
               key: pass
         - name: LLEIDANET_ALARM_PHONE
-          value: 635685258
+          value: "6356852582"
       restartPolicy: Never
