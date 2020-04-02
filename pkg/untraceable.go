@@ -122,15 +122,12 @@ func (l *Leontel) MapToUntraceable() Untraceable {
 
 // MapToLLeida maps phones in leads array to LLeidanet structure
 func MapToLLeida(candidates Candidates) Destination {
-	log.Printf("MapToLLeida => %s", candidates.Desc)
-
 	dest := Destination{}
 	numbers := []string{}
 	for _, l := range candidates.Leads {
 		numbers = append(numbers, *l.Phone)
 	}
 	dest.Number = numbers
-	log.Printf("numbers: %s", dest.Number)
 	return dest
 }
 
@@ -144,14 +141,9 @@ func (h *Handler) Fire() {
 			lleida.Sms.Source = cand.Desc
 			lleida.Sms.Text = lleida.Sms.Text + " " + cand.DDI
 
-			// TODO uncomment
-			// resp, err := lleida.Send()
-			// if err != nil {
-			// 	h.pushError(err)
-			// }
-			// TODO remove
-			resp := LLeidaResp{
-				Status: "Success",
+			resp, err := lleida.Send()
+			if err != nil {
+				h.pushError(err)
 			}
 
 			if resp.Status == "Success" {
