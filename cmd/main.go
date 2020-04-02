@@ -55,13 +55,12 @@ func main() {
 		log.Fatalf("error creating the table. err: %s", err)
 	}
 
-	// TODO set user/password as env var
 	handler := untraceable.Handler{
 		Storer: database,
 		LLeidanet: untraceable.LLeidanet{
 			Sms: untraceable.Parameters{
-				User:     "bysidecar",
-				Password: "wwvkys",
+				User:     getSetting("LLEIDANET_USER"),
+				Password: getSetting("LLEIDANET_PASS"),
 				Text:     "Te hemos llamado pero no hemos podido localizarte. Queremos ofrecerte una promo exclusiva para ti. ¿Nos devuelves la llamada? Este es nuestro número ",
 			},
 		},
@@ -76,7 +75,7 @@ func main() {
 			Log:    untraceable.LogError(err),
 		}
 		e.SendAlarm()
-		log.Fatalf("error retriving traced leads. err: %s", err)
+		log.Fatalf("%s. err: %s", msg, err)
 	}
 
 	if err := handler.GetUntraceables(); err != nil {
@@ -92,12 +91,6 @@ func main() {
 	}
 
 	handler.Fire()
-
-	//test send
-	// handler.LLeidanet.Sms.Source = "Test"
-	// handler.LLeidanet.Sms.Destination.Number = []string{"665932355"}
-	// resp, err := handler.LLeidanet.Send()
-	// log.Println(resp)
 
 	if len(handler.Errors) > 0 {
 		for _, err := range handler.Errors {
