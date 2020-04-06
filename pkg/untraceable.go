@@ -64,13 +64,13 @@ func (h *Handler) GetUntraceables() error {
 	}
 
 	candR := Candidates{
-		Desc:  "R",
+		Desc:  "R Cable",
 		DDI:   "881550607",
 		Leads: []Untraceable{},
 	}
 
 	candK := Candidates{
-		Desc:  "Euskatel",
+		Desc:  "Euskaltel",
 		DDI:   "945551061",
 		Leads: []Untraceable{},
 	}
