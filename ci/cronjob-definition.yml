@@ -4,7 +4,7 @@ metadata:
   name: untraceable-cronjob
   namespace: bysidecar-pre
 spec:
-  schedule: "04 09 * * 1-5"
+  schedule: "12 07 * * 1-5"
   jobTemplate:
     spec:
       template:
