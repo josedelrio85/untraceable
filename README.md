@@ -69,5 +69,4 @@ kubectl -n bysidecar-pre logs [pod_name]
 ```bash
 kubectl -n bysidecar-pre delete job/untraceable-job
 kubectl -n bysidecar-pre delete cronjob/untraceable-cronjob
-
 ```
