@@ -1,4 +1,4 @@
-module github.com/bysidecar/voalarm
+module github.com/josedelrio85/voalarm
 
 go 1.12
 

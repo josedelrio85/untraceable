@@ -2,7 +2,7 @@ apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
   name: untraceable-cronjob
-  namespace: bysidecar-pre
+  namespace: josedelrio85-pre
 spec:
   schedule: "12 07 * * 1-5"
   jobTemplate:

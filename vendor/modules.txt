@@ -1,5 +1,5 @@
-# github.com/bysidecar/voalarm v1.0.1
-github.com/bysidecar/voalarm
+# github.com/josedelrio85/voalarm v1.0.1
+github.com/josedelrio85/voalarm
 # github.com/go-sql-driver/mysql v1.5.0
 github.com/go-sql-driver/mysql
 # github.com/jinzhu/gorm v1.9.12

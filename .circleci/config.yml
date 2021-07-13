@@ -8,7 +8,7 @@ jobs:
           name: Install dependencies
           working_directory: /
           command: |
-            # install AWS CLI to interact with BySidecar's AWS resources
+            # install AWS CLI to interact with josedelrio85's AWS resources
             sudo apt-get -y -qq update
             sudo apt-get -y install awscli
       - run:
